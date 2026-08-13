@@ -1,0 +1,194 @@
+<style>
+.lx-highlight { position: relative; border-radius:3px; padding:1px 2px;}
+.lx-highlight .lx-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  background: #333;
+  color: #fff;
+  text-align: left;
+  border-radius: 4px;
+  padding: 6px 8px;
+  position: absolute;
+  z-index: 1000;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  max-width: 240px;
+  white-space: normal;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.lx-highlight:hover .lx-tooltip { visibility: visible; opacity:1; }
+.lx-animated-wrapper { max-width: 100%; font-family: Arial, sans-serif; }
+.lx-controls {
+  background: #fafafa; border: 1px solid #90caf9; border-radius: 8px;
+  padding: 12px; margin-bottom: 16px;
+}
+.lx-button-row {
+  display: flex; justify-content: center; gap: 8px; margin-bottom: 12px;
+}
+.lx-control-btn {
+  background: #4285f4; color: white; border: none; border-radius: 4px;
+  padding: 8px 16px; cursor: pointer; font-size: 13px; font-weight: 500;
+  transition: background-color 0.2s;
+}
+.lx-control-btn:hover { background: #3367d6; }
+.lx-progress-container {
+  margin-bottom: 8px;
+}
+.lx-progress-slider {
+  width: 100%; margin: 0; appearance: none; height: 6px;
+  background: #ddd; border-radius: 3px; outline: none;
+}
+.lx-progress-slider::-webkit-slider-thumb {
+  appearance: none; width: 18px; height: 18px; background: #4285f4;
+  border-radius: 50%; cursor: pointer;
+}
+.lx-progress-slider::-moz-range-thumb {
+  width: 18px; height: 18px; background: #4285f4; border-radius: 50%;
+  cursor: pointer; border: none;
+}
+.lx-status-text {
+  text-align: center; font-size: 12px; color: #666; margin-top: 4px;
+}
+.lx-text-window {
+  font-family: monospace; white-space: pre-wrap; border: 1px solid #90caf9;
+  padding: 12px; max-height: 260px; overflow-y: auto; margin-bottom: 12px;
+  line-height: 1.6;
+}
+.lx-attributes-panel {
+  background: #fafafa; border: 1px solid #90caf9; border-radius: 6px;
+  padding: 8px 10px; margin-top: 8px; font-size: 13px;
+}
+.lx-current-highlight {
+  border-bottom: 4px solid #ff4444;
+  font-weight: bold;
+  animation: lx-pulse 1s ease-in-out;
+}
+@keyframes lx-pulse {
+  0% { text-decoration-color: #ff4444; }
+  50% { text-decoration-color: #ff0000; }
+  100% { text-decoration-color: #ff4444; }
+}
+.lx-legend {
+  font-size: 12px; margin-bottom: 8px;
+  padding-bottom: 8px; border-bottom: 1px solid #e0e0e0;
+}
+.lx-label {
+  display: inline-block;
+  padding: 2px 4px;
+  border-radius: 3px;
+  margin-right: 4px;
+  color: #000;
+}
+.lx-attr-key {
+  font-weight: 600;
+  color: #1565c0;
+  letter-spacing: 0.3px;
+}
+.lx-attr-value {
+  font-weight: 400;
+  opacity: 0.85;
+  letter-spacing: 0.2px;
+}
+
+/* Add optimizations with larger fonts and better readability for GIFs */
+.lx-gif-optimized .lx-text-window { font-size: 16px; line-height: 1.8; }
+.lx-gif-optimized .lx-attributes-panel { font-size: 15px; }
+.lx-gif-optimized .lx-current-highlight { text-decoration-thickness: 4px; }
+</style>
+    <div class="lx-animated-wrapper lx-gif-optimized">
+      <div class="lx-attributes-panel">
+        <div class="lx-legend">Highlights Legend: <span class="lx-label" style="background-color:#D2E3FC;">macro_action</span> <span class="lx-label" style="background-color:#C8E6C9;">market_move</span></div>
+        <div id="attributesContainer"></div>
+      </div>
+      <div class="lx-text-window" id="textWindow">
+        【财联社8月12日电】宁德时代公告称,公司与福特汽车签署战略合作协议,
+将于2027年起向其北美工厂供应磷酸铁锂电池,预计年供货金额约45<span class="lx-highlight lx-current-highlight" data-idx="0" style="background-color:#C8E6C9;">亿元人民币。
+受此消息影响,宁德时代(300750.SZ)尾盘拉升,收涨3.2%报212.5</span><span class="lx-highlight" data-idx="1" style="background-color:#D2E3FC;">元。
+同日,央行开展3800亿元7天期逆回购操作,中标利率维持1.8</span>%不变,
+实现净投放1200亿元。市场分析人士指出,流动性宽松信号明显。
+
+      </div>
+      <div class="lx-controls">
+        <div class="lx-button-row">
+          <button class="lx-control-btn" onclick="playPause()">▶️ Play</button>
+          <button class="lx-control-btn" onclick="prevExtraction()">⏮ Previous</button>
+          <button class="lx-control-btn" onclick="nextExtraction()">⏭ Next</button>
+        </div>
+        <div class="lx-progress-container">
+          <input type="range" id="progressSlider" class="lx-progress-slider"
+                 min="0" max="1" value="0"
+                 onchange="jumpToExtraction(this.value)">
+        </div>
+        <div class="lx-status-text">
+          Entity <span id="entityInfo">1/2</span> |
+          Pos <span id="posInfo">[69-115]</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        const extractions = [{"index": 0, "class": "market_move", "text": "\u5b81\u5fb7\u65f6\u4ee3(300750.SZ)\u5c3e\u76d8\u62c9\u5347,\u6536\u6da83.2%\u62a5212.5\u5143", "color": "#C8E6C9", "startPos": 69, "endPos": 115, "beforeText": "\u3010\u8d22\u8054\u793e8\u670812\u65e5\u7535\u3011\u5b81\u5fb7\u65f6\u4ee3\u516c\u544a\u79f0,\u516c\u53f8\u4e0e\u798f\u7279\u6c7d\u8f66\u7b7e\u7f72\u6218\u7565\u5408\u4f5c\u534f\u8bae,\n\u5c06\u4e8e2027\u5e74\u8d77\u5411\u5176\u5317\u7f8e\u5de5\u5382\u4f9b\u5e94\u78f7\u9178\u94c1\u9502\u7535\u6c60,\u9884\u8ba1\u5e74\u4f9b\u8d27\u91d1\u989d\u7ea645", "extractionText": "\u4ebf\u5143\u4eba\u6c11\u5e01\u3002\n\u53d7\u6b64\u6d88\u606f\u5f71\u54cd,\u5b81\u5fb7\u65f6\u4ee3(300750.SZ)\u5c3e\u76d8\u62c9\u5347,\u6536\u6da83.2%\u62a5212.5", "afterText": "\u5143\u3002\n\u540c\u65e5,\u592e\u884c\u5f00\u5c553800\u4ebf\u51437\u5929\u671f\u9006\u56de\u8d2d\u64cd\u4f5c,\u4e2d\u6807\u5229\u7387\u7ef4\u63011.8%\u4e0d\u53d8,\n\u5b9e\u73b0\u51c0\u6295\u653e1200\u4ebf\u5143\u3002\u5e02\u573a\u5206\u6790\u4eba\u58eb\u6307\u51fa,\u6d41\u52a8\u6027\u5bbd\u677e\u4fe1\u53f7\u660e\u663e\u3002\n", "attributesHtml": "<div><strong>class:</strong> market_move</div><div><strong>attributes:</strong> {<span class=\"lx-attr-key\">code</span>: <span class=\"lx-attr-value\">300750.SZ</span>, <span class=\"lx-attr-key\">change_percent</span>: <span class=\"lx-attr-value\">3.2%</span>, <span class=\"lx-attr-key\">current_price</span>: <span class=\"lx-attr-value\">212.5\u5143</span>}</div>"}, {"index": 1, "class": "macro_action", "text": "\u592e\u884c\u5f00\u5c553800\u4ebf\u51437\u5929\u671f\u9006\u56de\u8d2d\u64cd\u4f5c,\u4e2d\u6807\u5229\u7387\u7ef4\u63011.8%\u4e0d\u53d8", "color": "#D2E3FC", "startPos": 115, "endPos": 149, "beforeText": "\u3010\u8d22\u8054\u793e8\u670812\u65e5\u7535\u3011\u5b81\u5fb7\u65f6\u4ee3\u516c\u544a\u79f0,\u516c\u53f8\u4e0e\u798f\u7279\u6c7d\u8f66\u7b7e\u7f72\u6218\u7565\u5408\u4f5c\u534f\u8bae,\n\u5c06\u4e8e2027\u5e74\u8d77\u5411\u5176\u5317\u7f8e\u5de5\u5382\u4f9b\u5e94\u78f7\u9178\u94c1\u9502\u7535\u6c60,\u9884\u8ba1\u5e74\u4f9b\u8d27\u91d1\u989d\u7ea645\u4ebf\u5143\u4eba\u6c11\u5e01\u3002\n\u53d7\u6b64\u6d88\u606f\u5f71\u54cd,\u5b81\u5fb7\u65f6\u4ee3(300750.SZ)\u5c3e\u76d8\u62c9\u5347,\u6536\u6da83.2%\u62a5212.5", "extractionText": "\u5143\u3002\n\u540c\u65e5,\u592e\u884c\u5f00\u5c553800\u4ebf\u51437\u5929\u671f\u9006\u56de\u8d2d\u64cd\u4f5c,\u4e2d\u6807\u5229\u7387\u7ef4\u63011.8", "afterText": "%\u4e0d\u53d8,\n\u5b9e\u73b0\u51c0\u6295\u653e1200\u4ebf\u5143\u3002\u5e02\u573a\u5206\u6790\u4eba\u58eb\u6307\u51fa,\u6d41\u52a8\u6027\u5bbd\u677e\u4fe1\u53f7\u660e\u663e\u3002\n", "attributesHtml": "<div><strong>class:</strong> macro_action</div><div><strong>attributes:</strong> {<span class=\"lx-attr-key\">institution</span>: <span class=\"lx-attr-value\">\u592e\u884c</span>, <span class=\"lx-attr-key\">tool</span>: <span class=\"lx-attr-value\">\u9006\u56de\u8d2d</span>, <span class=\"lx-attr-key\">scale</span>: <span class=\"lx-attr-value\">3800\u4ebf\u5143</span>, <span class=\"lx-attr-key\">rate</span>: <span class=\"lx-attr-value\">1.8%</span>}</div>"}];
+        let currentIndex = 0;
+        let isPlaying = false;
+        let animationInterval = null;
+        let animationSpeed = 1.0;
+
+        function updateDisplay() {
+          const extraction = extractions[currentIndex];
+          if (!extraction) return;
+
+          document.getElementById('attributesContainer').innerHTML = extraction.attributesHtml;
+          document.getElementById('entityInfo').textContent = (currentIndex + 1) + '/' + extractions.length;
+          document.getElementById('posInfo').textContent = '[' + extraction.startPos + '-' + extraction.endPos + ']';
+          document.getElementById('progressSlider').value = currentIndex;
+
+          const playBtn = document.querySelector('.lx-control-btn');
+          if (playBtn) playBtn.textContent = isPlaying ? '⏸ Pause' : '▶️ Play';
+
+          const prevHighlight = document.querySelector('.lx-text-window .lx-current-highlight');
+          if (prevHighlight) prevHighlight.classList.remove('lx-current-highlight');
+          const currentSpan = document.querySelector('.lx-text-window span[data-idx="' + currentIndex + '"]');
+          if (currentSpan) {
+            currentSpan.classList.add('lx-current-highlight');
+            currentSpan.scrollIntoView({block: 'center', behavior: 'smooth'});
+          }
+        }
+
+        function nextExtraction() {
+          currentIndex = (currentIndex + 1) % extractions.length;
+          updateDisplay();
+        }
+
+        function prevExtraction() {
+          currentIndex = (currentIndex - 1 + extractions.length) % extractions.length;
+          updateDisplay();
+        }
+
+        function jumpToExtraction(index) {
+          currentIndex = parseInt(index);
+          updateDisplay();
+        }
+
+        function playPause() {
+          if (isPlaying) {
+            clearInterval(animationInterval);
+            isPlaying = false;
+          } else {
+            animationInterval = setInterval(nextExtraction, animationSpeed * 1000);
+            isPlaying = true;
+          }
+          updateDisplay();
+        }
+
+        window.playPause = playPause;
+        window.nextExtraction = nextExtraction;
+        window.prevExtraction = prevExtraction;
+        window.jumpToExtraction = jumpToExtraction;
+
+        updateDisplay();
+      })();
+    </script>
