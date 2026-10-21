@@ -65,7 +65,7 @@ hallucination rate = ungrounded extractions / all extractions
 Two numbers decide whether that rate means anything:
 
 - **Detection rate** — the share of *injected* fake events the verifier catches. A verifier that never flags anything would score 0 here.
-- **False-positive rate** — the share of *real* events it wrongly flags. A verifier that flags everything would score 0 on detection and badly on this one.
+- **False-positive rate** — the share of *real* events it wrongly flags. A verifier that flags everything would have perfect detection and a false-positive rate of 100% — useless all the same, which is why the two numbers only mean something together.
 
 On this fixture both are perfect: detection is 1/1 (100%) — the one injected fake is flagged — and the false-positive rate is 0/3 (0%) — all three real events pass. Those two hypotheticals above are the failure modes the suite is built to catch, not measurements of this verifier.
 

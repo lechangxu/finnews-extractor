@@ -24,8 +24,15 @@ jobs:
       - name: promptfoo eval
         # Exit code 100 means "some case failed" and is also what a crashed
         # worker returns, so it cannot tell green from red. The gate step below
-        # owns the verdict; this step only produces the report.
+        # owns the verdict; this step only produces the report - but it records
+        # its exit code, so that a missing report can be reported as a crash
+        # rather than as an unreadable file.
         continue-on-error: true
-        run: npx --yes promptfoo@0.124.1 eval -c evals/promptfooconfig.yaml --no-cache --no-write --output /tmp/pf-results.json
+        run: |
+          set +e
+          npx --yes promptfoo@0.124.1 eval -c evals/promptfooconfig.yaml --no-cache --no-write --output /tmp/pf-results.json
+          rc=$?
+          echo "eval_exit=$rc" > /tmp/pf-eval-exit.txt
+          exit $rc
       - name: promptfoo gate
-        run: python3 evals/pf_provider.py /tmp/pf-results.json
+        run: python3 evals/pf_provider.py /tmp/pf-results.json /tmp/pf-eval-exit.txt

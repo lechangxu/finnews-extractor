@@ -98,7 +98,7 @@ def call_api(prompt, options, context):  # noqa: ARG001 - promptfoo signature
     }
 
 
-def check_results(path: str) -> int:
+def check_results(path: str, exit_code_path: str | None = None) -> int:
     """CI gate over a promptfoo `--output` JSON file.
 
     Prints `successes <n> failures <n> errors <n>` and returns 0 exactly when
@@ -108,13 +108,36 @@ def check_results(path: str) -> int:
         with open(path, encoding="utf-8") as fh:
             report = json.load(fh)
         stats = report["results"]["stats"]
-        # No int() coercion: 2.9 must not pass as 2, so only an exact match on
-        # the reported numbers counts as green.
+        # No int() coercion and no truthiness: `2.0 == 2` and `True == 1` are
+        # both True in Python, so only `type(...) is int` proves the report
+        # actually counts test cases.
         successes = stats["successes"]
         failures = stats["failures"]
         errors = stats["errors"]
+        if any(type(v) is not int for v in (successes, failures, errors)):
+            print(
+                f"results.stats holds non-integers: successes={successes!r} "
+                f"failures={failures!r} errors={errors!r}",
+                file=sys.stderr,
+            )
+            return 1
     except Exception as exc:  # noqa: BLE001 - CLI boundary, report and fail
-        print(f"could not read promptfoo report {path}: {exc}", file=sys.stderr)
+        # A missing report means the eval step died before writing one. Say so
+        # explicitly, and hand over the exit code it left behind, instead of
+        # reporting "unreadable file" as if the suite had produced a verdict.
+        recorded = ""
+        if exit_code_path:
+            try:
+                with open(exit_code_path, encoding="utf-8") as fh:
+                    recorded = f" (eval step recorded {fh.read().strip()})"
+            except OSError:
+                recorded = " (eval step recorded nothing - it probably never ran)"
+        print(
+            f"no usable promptfoo report at {path}: {exc}{recorded}. "
+            "The eval step crashed or wrote nothing; this is not a verdict on "
+            "the suite, check that step's own output.",
+            file=sys.stderr,
+        )
         return 2
 
     print(f"successes {successes} failures {failures} errors {errors}")
@@ -122,4 +145,4 @@ def check_results(path: str) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(check_results(sys.argv[1]))
+    raise SystemExit(check_results(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else None))
