@@ -8,11 +8,24 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11", "3.12"]
+    env:
+      PROMPTFOO_DISABLE_TELEMETRY: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
       - run: pip install -e ".[dev]"
       - run: pytest -q
       - run: python evals/run_eval.py
+      - name: promptfoo eval
+        # Exit code 100 means "some case failed" and is also what a crashed
+        # worker returns, so it cannot tell green from red. The gate step below
+        # owns the verdict; this step only produces the report.
+        continue-on-error: true
+        run: npx --yes promptfoo@0.124.1 eval -c evals/promptfooconfig.yaml --no-cache --no-write --output /tmp/pf-results.json
+      - name: promptfoo gate
+        run: python3 evals/pf_provider.py /tmp/pf-results.json

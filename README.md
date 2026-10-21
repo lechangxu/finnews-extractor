@@ -54,6 +54,47 @@ PASS
 
 Honest framing: this is a smoke fixture (one document, three events) proving the machinery — span recovery, attribute grounding, hallucination flagging — works end to end. The harness is the product: point it at your own recorded extractions and you have a regression suite for your extraction pipeline.
 
+## How to measure the hallucination rate
+
+The verifier already records which extractions it could not ground, so the headline number is free:
+
+```
+hallucination rate = ungrounded extractions / all extractions
+```
+
+Two numbers decide whether that rate means anything:
+
+- **Detection rate** — the share of *injected* fake events the verifier catches. A verifier that never flags anything would score 0 here.
+- **False-positive rate** — the share of *real* events it wrongly flags. A verifier that flags everything would score 0 on detection and badly on this one.
+
+On this fixture both are perfect: detection is 1/1 (100%) — the one injected fake is flagged — and the false-positive rate is 0/3 (0%) — all three real events pass. Those two hypotheticals above are the failure modes the suite is built to catch, not measurements of this verifier.
+
+`evals/promptfooconfig.yaml` turns both into a declarative [promptfoo](https://www.promptfoo.dev/) suite over the recorded fixture: the golden run, plus one adversarial run with a fabricated deal (`比亚迪公告称收购蔚来汽车`) appended to the real extractions.
+
+```
+PROMPTFOO_DISABLE_TELEMETRY=1 npx --yes promptfoo@0.124.1 eval -c evals/promptfooconfig.yaml --no-cache --no-write
+```
+
+Real output on this commit:
+
+```
+✓ 2 passed (100%)
+0 failed (0%)
+0 errors (0%)
+```
+
+Per scenario, read out of the provider's JSON:
+
+```
+real extractions grounded : 3/3
+attribute values grounded : 11/11
+injected hallucination flagged : yes
+```
+
+`promptfoo eval` exits 100 whenever a case fails — the same code a crashed worker returns — so this repo does not gate on the exit code. `python3 evals/pf_provider.py <results.json>` parses `results.stats` and passes only on exactly 2 successes, 0 failures, 0 errors; CI runs both steps.
+
+This is a smoke fixture (one document), not a benchmark.
+
 ## How verification works
 
 1. **Trust-but-verify the claimed interval** — if the library's `char_interval` slices exactly to the extraction text, done (`interval_exact`).

@@ -1,0 +1,59 @@
+# Hallucination rate = ungrounded extractions / all extractions.
+#
+# This suite measures the two numbers that make that rate trustworthy:
+#   detection rate     - share of injected fake events the verifier catches
+#   false-positive rate - share of real events it wrongly flags
+# Both computed over the recorded golden fixture, keyless and offline.
+#
+# Provider path is resolved relative to THIS file's directory - not the repo
+# root - so it is `pf_provider.py`, not `evals/pf_provider.py`.
+prompts:
+  - "{{scenario}}"
+
+providers:
+  - id: "python:pf_provider.py"
+
+tests:
+  - vars:
+      case_id: golden
+      scenario: golden
+    assert:
+      - type: is-json
+      - type: javascript
+        value: |
+          const p = JSON.parse(output);
+          return p.grounded === p.total_real;
+      - type: javascript
+        value: |
+          const p = JSON.parse(output);
+          return p.total_real === 3;
+      - type: javascript
+        value: |
+          const p = JSON.parse(output);
+          return p.recovered === 3;
+      - type: javascript
+        value: |
+          const p = JSON.parse(output);
+          return p.attributes_grounded === p.attributes_total;
+      - type: javascript
+        value: |
+          const p = JSON.parse(output);
+          return p.injected_flagged === false;
+
+  - vars:
+      case_id: injected
+      scenario: injected
+    assert:
+      - type: is-json
+      - type: javascript
+        value: |
+          const p = JSON.parse(output);
+          return p.injected_flagged === true;
+      - type: javascript
+        value: |
+          const p = JSON.parse(output);
+          return p.grounded === p.total_real;
+      - type: javascript
+        value: |
+          const p = JSON.parse(output);
+          return p.total_real === 3;
