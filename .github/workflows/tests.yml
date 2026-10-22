@@ -17,7 +17,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          # promptfoo@0.124.1 declares engines.node >=22.22.0; anything lower refuses to start.
+          node-version: "22.22.0"
       - run: pip install -e ".[dev]"
       - run: pytest -q
       - run: python evals/run_eval.py
