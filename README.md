@@ -104,6 +104,17 @@ This is a smoke fixture (one document), not a benchmark.
 
 Verdicts are data, not policy: your pipeline decides whether `partial` means drop, fix, or human-review.
 
+## Stack
+
+| Layer | What it is |
+|---|---|
+| Language | Python 3.10+ (`requires-python` in `pyproject.toml`) |
+| Install | `pip install -e ".[dev]"` |
+| Runtime dependencies | none — standard library only |
+| Optional extra | `langextract >= 0.4` for live extraction (`pip install -e ".[live]"`) |
+| Tests | pytest — 16 tests in `tests/` |
+| CI | GitHub Actions, Python 3.11 + 3.12, plus a promptfoo eval gate |
+
 ## Layout
 
 | file | role |
